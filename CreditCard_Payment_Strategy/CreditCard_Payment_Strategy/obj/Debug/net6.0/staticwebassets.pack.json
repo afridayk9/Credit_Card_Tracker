@@ -1,0 +1,25 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Veteran\\OneDrive\\Desktop\\Credit_Card_Tracker\\CreditCard_Payment_Strategy\\CreditCard_Payment_Strategy\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.CreditCard_Payment_Strategy.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.build.CreditCard_Payment_Strategy.props",
+      "PackagePath": "build\\CreditCard_Payment_Strategy.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildMultiTargeting.CreditCard_Payment_Strategy.props",
+      "PackagePath": "buildMultiTargeting\\CreditCard_Payment_Strategy.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildTransitive.CreditCard_Payment_Strategy.props",
+      "PackagePath": "buildTransitive\\CreditCard_Payment_Strategy.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

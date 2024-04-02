@@ -1,0 +1,162 @@
+﻿@page "/creditcards/{username}"
+@using CreditCard_Payment_Strategy.Data
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject MudBlazor.ISnackbar snackBar
+@inject IJSRuntime JSRuntime
+
+<MudText Typo="Typo.h3">@username's Credit Cards</MudText>
+<MudGrid>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="newUsername" Label="New username" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="UpdateUsername">Update Username</MudButton>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudButton Color="Color.Error" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" OnClick="DeleteUser">Delete User</MudButton>
+    </MudItem>
+</MudGrid>
+
+
+<MudText Typo="Typo.h4">Add a Credit Card</MudText>
+<MudGrid>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="newCardName" Label="Enter card name" Variant="Variant.Outlined" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudTextField @bind-Value="newCardLimit" Label="Enter card limit" Variant="Variant.Outlined" InputType="InputType.Number" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="AddCreditCard">Add Credit Card</MudButton>
+    </MudItem>
+</MudGrid>
+
+
+@if (creditCards == null)
+{
+    <MudText Typo="Typo.h5">Loading...</MudText>
+}
+else
+{
+    <MudTable Items="@creditCards" Hover="true" SortLabel="Sort By" RowStyleFunc="@( (creditCard, index) => creditCard.percent_utilized > 60 ? "background-color: rgba(255, 0, 0, 0.15);" : creditCard.percent_utilized > 30 ? "background-color: rgba(255, 255, 0, 0.15);" : creditCard.percent_utilized >= 10 ? "background-color: rgba(0, 128, 0, 0.15);" : "")">
+        <HeaderContent>
+            <MudTh>Card Name</MudTh>
+            <MudTh><MudTableSortLabel Enabled="@enabled" SortBy="(System.Func<CreditCardModal,object>)(x => x.card_limit)">Card Limit</MudTableSortLabel></MudTh>
+            <MudTh>30% Limit</MudTh>
+            <MudTh>10% Limit</MudTh>
+            <MudTh><MudTableSortLabel Enabled="@enabled" SortBy="(System.Func<CreditCardModal,object>)(x => x.current_balance)">Current Balance</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel Enabled="@enabled" SortBy="(System.Func<CreditCardModal,object>)(x => x.percent_utilized)">Percent Utilized</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate Context="card">
+            <MudTd><MudTextField @bind-Value="card.card_name" /></MudTd>
+            <MudTd><MudNumericField @bind-Value="card.card_limit" /></MudTd>
+            <MudTd>@(card.thirty_percent_limit)</MudTd>
+            <MudTd>@(card.ten_percent_limit)</MudTd>
+            <MudTd><MudNumericField @bind-Value="card.current_balance" /></MudTd>
+            <MudTd>@card.percent_utilized.ToString("0.00")%</MudTd>
+            <MudTd><MudButton Color="Color.Primary" Variant="Variant.Outlined" OnClick="() => UpdateCreditCard(card)">Update</MudButton></MudTd>
+                <MudTd><MudButton Color="Color.Error" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" OnClick="() => DeleteCreditCard(card.id)">Delete</MudButton></MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+
+@code {
+    [Parameter]
+    public string? username { get; set; }
+    private string? newCardName;
+    private double newCardLimit;
+    private string newUsername;
+    private bool enabled = true;    
+    private CreditCardModal[] creditCards = Array.Empty<CreditCardModal>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetUserAndCreditCards();
+    }
+
+    private async Task AddCreditCard()
+    {
+        var creditCard = new CreditCardModal
+        {
+            username = username,
+            card_name = newCardName,
+            card_limit = newCardLimit
+        };
+
+        var response = await Http.PostAsJsonAsync($"http://localhost:5000/credit_cards", creditCard);
+        if (response.IsSuccessStatusCode)
+        {
+            // Refresh the list of credit cards
+            await GetUserAndCreditCards();
+        }
+
+        newCardName = "";
+        newCardLimit = 0;
+    }
+
+    private async Task GetUserAndCreditCards()
+    {        
+        var user = await Http.GetFromJsonAsync<UserModel>($"http://localhost:5000/users/{Uri.EscapeDataString(username)}");
+        if (user != null)
+        {
+            var response = await Http.GetFromJsonAsync<CreditCardResponse>($"http://localhost:5000/users/{Uri.EscapeDataString(username)}/credit_cards");
+            creditCards = response?.credit_cards;
+        }
+    }
+
+    private async Task UpdateUsername()
+    {
+        var response = await Http.PutAsJsonAsync($"http://localhost:5000/users/{username}", new { user_name = newUsername });       
+
+        username = newUsername;
+        newUsername = "";
+        NavigationManager.NavigateTo($"/creditcards/{username}");        
+    }
+
+    private async Task DeleteUser()
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { "Are you sure you want to delete this user?" });
+
+        if (confirmed)
+        {
+            var response = await Http.DeleteAsync($"http://localhost:5000/users/{Uri.EscapeDataString(username)}/credit_cards");
+            if (!response.IsSuccessStatusCode)
+            {
+                return;
+            }
+
+
+            response = await Http.DeleteAsync($"http://localhost:5000/users/{Uri.EscapeDataString(username)}");
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/");
+            }
+        }
+    }
+
+    private async Task UpdateCreditCard(CreditCardModal card)
+    {
+        var response = await Http.PutAsJsonAsync($"http://localhost:5000/users/{Uri.EscapeDataString(username)}/credit_cards/{card.id}", card);
+        if (response.IsSuccessStatusCode)
+        {
+            await GetUserAndCreditCards();
+        }
+    }
+
+    private async Task DeleteCreditCard(int cardId)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new object[] { "Are you sure you want to delete this card?" });
+        if (confirmed)
+        {
+            var response = await Http.DeleteAsync($"http://localhost:5000/users/{Uri.EscapeDataString(username)}/credit_cards/{cardId}");
+            if (response.IsSuccessStatusCode)
+            {
+                snackBar.Add("Credit card deleted", Severity.Success);
+                await GetUserAndCreditCards();
+            }
+        }
+    }
+}
