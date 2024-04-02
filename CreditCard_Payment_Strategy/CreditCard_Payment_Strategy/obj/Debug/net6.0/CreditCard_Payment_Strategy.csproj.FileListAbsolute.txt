@@ -76,3 +76,4 @@ C:\Users\Veteran\OneDrive\Desktop\Credit_Card_Tracker\CreditCard_Payment_Strateg
 C:\Users\Veteran\OneDrive\Desktop\Credit_Card_Tracker\CreditCard_Payment_Strategy\CreditCard_Payment_Strategy\obj\Debug\net6.0\CreditCard_Payment_Strategy.csproj.CopyComplete
 C:\Users\Veteran\OneDrive\Desktop\Credit_Card_Tracker\CreditCard_Payment_Strategy\CreditCard_Payment_Strategy\obj\Debug\net6.0\CreditCard_Payment_Strategy.genruntimeconfig.cache
 C:\Users\Veteran\OneDrive\Desktop\Credit_Card_Tracker\CreditCard_Payment_Strategy\CreditCard_Payment_Strategy\obj\Debug\net6.0\ref\CreditCard_Payment_Strategy.dll
+C:\Users\Veteran\OneDrive\Desktop\Credit_Card_Tracker\CreditCard_Payment_Strategy\CreditCard_Payment_Strategy\obj\Debug\net6.0\CreditCard_Payment_Strategy.sourcelink.json
