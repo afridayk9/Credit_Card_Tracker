@@ -1,0 +1,24 @@
+﻿@page "/"
+@using CreditCard_Payment_Strategy.Data
+@inject HttpClient Http
+
+<h3>Enter Username</h3>
+<input @bind="username" @bind:event="oninput" />
+
+<button @onclick="GetUserId">Get User ID</button>
+
+@if (userId != null)
+{
+    <p>User ID: @userId</p>
+}
+
+@code {
+    private string username;
+    private string userId;
+
+    private async Task GetUserId()
+    {
+        var user = await Http.GetFromJsonAsync<UserModel>($"http://localhost:5000/users/{username}");
+        userId = user.id;
+    }
+}
